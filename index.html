@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Discount Info</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh; /* Full viewport height */
+        }
+
+        .left {
+            flex: 1; /* Takes 50% width */
+            padding: 20px;
+            background-color: #f4f4f4; /* Light gray for contrast */
+            overflow-y: auto; /* Scroll if content overflows */
+        }
+
+        .right {
+            flex: 1; /* Takes 50% width */
+            padding: 20px;
+            background-color: #ffffff; /* White background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto; /* Scroll if content overflows */
+        }
+
+        .form-container, .graph-container {
+            width: 100%;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        canvas {
+            max-width: 100%; /* Ensure graph resizes properly */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+   <div class="container">
+        <!-- Left Side: Form -->
+        <div class="left">
+            <h1>Form</h1>
+
+    <form id="discountForm">
+        <label for="rpcUrl">RPC URL:</label>
+        <input type="text" id="rpcUrl" placeholder="Enter RPC URL" required
+        value=""><br><br>
+        
+        <label for="contractAddress">Contract Address:</label>
+        <input type="text" id="contractAddress" placeholder="Enter Contract Address" required
+        value=""><br><br>
+        
+        <label for="discountId">Discount name (string):</label>
+        <input type="text" id="discountId" placeholder="Enter Discount ID" required value=""
+        ><br><br>
+        
+        <button type="button" id="getInfo">Get Info</button>
+    </form>
+
+
+    <h2>Results</h2>
+    <div id="results"></div>
+        </div>
+
+        <!-- Right Side: Graph -->
+        <div class="right">
+            <div class="graph-container">
+              <h1>Price graph<span id="pair"></span></h1>
+                <canvas id="priceGraph"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="chatr.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
