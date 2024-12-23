@@ -109,14 +109,25 @@ document.getElementById('getInfo').addEventListener('click', async () => {
 
     const numerator = await contract.methods.numerator().call();
     const denominator = await contract.methods.denominator().call();
+    console.log("num",numerator,"deb",denominator);
     // Call the getDiscount function
     const discountData = await contract.methods.getDiscount(discountHash).call();
+    /*
+    discountData = [
+      1734900000n,
+      1735677600n,
+      86400n,
+      13000n,
+      5364000000000000000n,
+    ];
+    */
+    //discountData[3]=14500n;
     console.log(token_buy, token_pay, numerator, denominator, discountData);
 
     // Helper function to convert Unix time to RFC 3339
     const toRFC3339 = (unixTime) => {
       const date = new Date(Number(unixTime) * 1000);
-      return date.toISOString().replace("T"," ").split(".")[0];
+      return date; //date.toISOString().replace("T"," ").split(".")[0];
     };
 
     // Helper function to convert seconds to human-readable interval
@@ -145,28 +156,34 @@ document.getElementById('getInfo').addEventListener('click', async () => {
     };
 
     var currentTimestamp = Math.floor(Date.now() / 1000);
-    // Format output
-    const formattedData = {
-      now: toRFC3339(currentTimestamp),
-      t0: toRFC3339(discountData[0]),
-      t1: toRFC3339(discountData[1]),
-      value3: toInterval(Number(discountData[2])),
-      value4: toEtherFormat(discountData[3], 'wei'), // Assumes step is in wei
-      value5: toEtherFormat(discountData[4], 'ether'), // Assumes limit is in ether
-      interval: toInterval(Number(discountData[1]-discountData[0])),
-      interval_l: toInterval(Number(discountData[1])-currentTimestamp),
-    };
+    
     const toGo=Number(discountData[1])-currentTimestamp;
     const pcsLeft=Math.ceil(toGo/Number(discountData[2]));
 
+    const next=((currentTimestamp-Number(discountData[0]))%Number(discountData[2]));
+    console.log(next,currentTimestamp,next);
+
+    var formattedData = {
+      now:        toRFC3339(currentTimestamp),
+      t0:         toRFC3339(discountData[0]),
+      t1:         toRFC3339(discountData[1]),
+      next:       "",
+      value3:     toInterval(Number(discountData[2])),
+      value4:     toEtherFormat(discountData[3], 'wei'), // Assumes step is in wei
+      value5:     toEtherFormat(discountData[4], 'ether'), // Assumes limit is in ether
+      interval:   toInterval(Number(discountData[1]-discountData[0])),
+      interval_l: toInterval(Number(discountData[1])-currentTimestamp),
+    };
 
     var priceData = [];
     if(currentTimestamp>discountData[0] && currentTimestamp < discountData[1]){
       var t=discountData[1]-(BigInt(pcsLeft)*discountData[2])
+      formattedData.next=toInterval(Number(t+discountData[2])-currentTimestamp);
       for(; t<=discountData[1]; t+=discountData[2]){
-
-        const discount=((discountData[1]-BigInt(t))/discountData[2])*discountData[3];
-        priceData.push([Number(t),Number(denominator)/Number(numerator+discount)]);
+        const discount1=((discountData[1]-BigInt(t))/discountData[2])*discountData[3];
+        priceData.push([Number(t),Number(denominator)/Number(numerator+discount1)]);
+        const discount2=((discountData[1]-BigInt(t+1n))/discountData[2])*discountData[3];
+        priceData.push([Number(t+1n),Number(denominator)/Number(numerator+discount2)]);
         //priceData.push([Number(t),Number(numerator+discount)/Number(denominator)]);
       }
     }else{
@@ -185,6 +202,7 @@ document.getElementById('getInfo').addEventListener('click', async () => {
                 <li>Token to pay: ${token_pay}</li>
                 <li>Start Time: ${formattedData.t0}</li>
                 <li>End Time: ${formattedData.t1}</li>
+                <li>next price: ${formattedData.next}</li>
                 <li>Now: ${formattedData.now}</li>
                 <li>Interval: ${formattedData.value3}</li>
                 <li>Step: ${formattedData.value4}</li>
